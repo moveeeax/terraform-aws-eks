@@ -9,7 +9,7 @@ certificate authority data needed to configure kubectl.
 
 ```hcl
 module "eks" {
-  source = "github.com/cybercapybara/terraform-aws-eks"
+  source = "github.com/moveeeax/terraform-aws-eks"
 
   name       = "prod-cluster"
   role_arn   = aws_iam_role.eks.arn
