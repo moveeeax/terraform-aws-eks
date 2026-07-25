@@ -27,19 +27,23 @@ variable "subnet_ids" {
 variable "endpoint_private_access" {
   description = "Whether the cluster API server endpoint is reachable from within the VPC."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "endpoint_public_access" {
   description = "Whether the cluster API server endpoint is reachable from the public internet."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "public_access_cidrs" {
-  description = "CIDR blocks allowed to reach the public API server endpoint."
+  description = <<-EOT
+    CIDR blocks allowed to reach the public API server endpoint. Must be set
+    explicitly whenever `endpoint_public_access` is true: leaving it null makes
+    AWS fall back to 0.0.0.0/0, which exposes the API server to the internet.
+  EOT
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = null
 }
 
 variable "security_group_ids" {
@@ -51,7 +55,24 @@ variable "security_group_ids" {
 variable "enabled_cluster_log_types" {
   description = "Control plane log types to enable and ship to CloudWatch Logs."
   type        = list(string)
-  default     = []
+  default     = ["api", "audit", "authenticator"]
+
+  validation {
+    condition = alltrue([
+      for t in var.enabled_cluster_log_types :
+      contains(["api", "audit", "authenticator", "controllerManager", "scheduler"], t)
+    ])
+    error_message = "Valid log types are api, audit, authenticator, controllerManager and scheduler."
+  }
+}
+
+variable "kms_key_arn" {
+  description = <<-EOT
+    ARN of a KMS key used for envelope encryption of Kubernetes secrets. Null
+    leaves secrets encrypted only by the EKS-managed etcd volume encryption.
+  EOT
+  type        = string
+  default     = null
 }
 
 variable "tags" {
