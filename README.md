@@ -48,6 +48,21 @@ module "eks" {
 
 A runnable example lives in [`examples/basic`](examples/basic).
 
+To grant IAM permissions to Kubernetes service accounts (IRSA), register the
+cluster's OIDC issuer as an IAM OIDC identity provider:
+
+```hcl
+resource "aws_iam_openid_connect_provider" "eks" {
+  url             = module.eks.oidc_issuer_url
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [...]
+}
+```
+
+`role_arn`, `kms_key_arn` and `public_access_cidrs` are validated at plan
+time: a malformed ARN or CIDR block fails fast instead of surfacing as an
+opaque error from the AWS API during apply.
+
 ## Requirements
 
 | Name      | Version  |
@@ -80,6 +95,7 @@ A runnable example lives in [`examples/basic`](examples/basic).
 | `endpoint`                   | Endpoint of the Kubernetes API server.             |
 | `certificate_authority_data` | Base64-encoded CA data for the cluster.            |
 | `cluster_security_group_id`  | Security group ID created by EKS.                  |
+| `oidc_issuer_url`            | URL of the cluster's OIDC issuer, for IRSA.        |
 
 ## Tests
 

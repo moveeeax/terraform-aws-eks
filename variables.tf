@@ -6,6 +6,11 @@ variable "name" {
 variable "role_arn" {
   description = "ARN of the IAM role that provides permissions for the Kubernetes control plane."
   type        = string
+
+  validation {
+    condition     = can(regex("^arn:[^:]+:iam::\\d{12}:role/", var.role_arn))
+    error_message = "role_arn must be a full IAM role ARN, e.g. arn:aws:iam::111111111111:role/eks-cluster."
+  }
 }
 
 variable "kubernetes_version" {
@@ -44,6 +49,13 @@ variable "public_access_cidrs" {
   EOT
   type        = list(string)
   default     = null
+
+  validation {
+    condition = var.public_access_cidrs == null ? true : alltrue([
+      for cidr in var.public_access_cidrs : can(cidrhost(cidr, 0))
+    ])
+    error_message = "Each entry in public_access_cidrs must be a valid CIDR block, e.g. 203.0.113.0/24."
+  }
 }
 
 variable "security_group_ids" {
@@ -73,6 +85,11 @@ variable "kms_key_arn" {
   EOT
   type        = string
   default     = null
+
+  validation {
+    condition     = var.kms_key_arn == null ? true : can(regex("^arn:[^:]+:kms:[^:]+:\\d{12}:key/", var.kms_key_arn))
+    error_message = "kms_key_arn must be a full KMS key ARN, e.g. arn:aws:kms:us-east-1:111111111111:key/00000000-0000-0000-0000-000000000000."
+  }
 }
 
 variable "tags" {

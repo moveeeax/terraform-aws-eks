@@ -22,3 +22,8 @@ output "cluster_security_group_id" {
   description = "Security group ID created by EKS for the control plane."
   value       = aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
 }
+
+output "oidc_issuer_url" {
+  description = "URL of the cluster's OIDC identity issuer. Register it as an IAM OIDC provider to grant IAM roles to Kubernetes service accounts (IRSA)."
+  value       = aws_eks_cluster.this.identity[0].oidc[0].issuer
+}
