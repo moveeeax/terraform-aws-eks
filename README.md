@@ -113,3 +113,7 @@ the test suite only; the module itself still supports >= 1.5.
 ## License
 
 [MIT](LICENSE)
+
+---
+
+**Archived on 2026-11-05.** it manages only the aws_eks_cluster control plane, with no compute, add-ons, access entries or OIDC provider. terraform-aws-modules/eks is the de facto standard and covers all of this. The secure-endpoint preconditions are a nice touch but not a product. If you keep it as a minimal control-plane module, the first three features below are required for it to be usable.
